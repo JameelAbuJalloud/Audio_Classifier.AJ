@@ -1,9 +1,112 @@
 ---
 import { Icon } from 'astro-icon'
-
+astro: markdown
 const { src = '/astronaut-hero-img.webp' } = Astro.props
 ---
 
+---
+<astro>
+  import { createEffect, onCleanup } from 'solid-js';
+
+  let mediaRecorder;
+  let recordedChunks = [];
+
+  let isRecording = false;
+  let isStopped = false;
+  let isPlaying = false;
+
+  const startRecording = () => {
+    isRecording = true;
+    isStopped = false;
+    isPlaying = false;
+
+    mediaRecorder.start();
+  };
+
+  const stopRecording = () => {
+    isRecording = false;
+    isStopped = true;
+    isPlaying = false;
+
+    mediaRecorder.stop();
+  };
+
+  const playRecording = () => {
+    isRecording = false;
+    isStopped = false;
+    isPlaying = true;
+
+    audioPlayer.play();
+  };
+
+  onCleanup(() => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+  });
+
+  $: {
+    recordButton.disabled = isRecording;
+    stopButton.disabled = !isRecording && !recordedChunks.length;
+    playButton.disabled = !recordedChunks.length || isRecording || isStopped;
+    audioPlayer.src = recordedChunks.length ? URL.createObjectURL(new Blob(recordedChunks, { type: 'audio/webm' })) : '';
+  }
+
+  createEffect(() => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          recordedChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          if (!isPlaying) {
+            audioPlayer.src = URL.createObjectURL(new Blob(recordedChunks, { type: 'audio/webm' }));
+          }
+
+          recordedChunks = [];
+        };
+      })
+      .catch((err) => {
+        console.log('The following error occurred: ' + err);
+      });
+  });
+</astro>
+
+<template>
+  <h1>Audio Recorder</h1>
+
+  <div id="controls">
+    <button disabled={isRecording} onclick={startRecording}>Record</button>
+    <button disabled={!isRecording && !recordedChunks.length} onclick={stopRecording}>Stop</button>
+    <button disabled={!recordedChunks.length || isRecording || isStopped} onclick={playRecording}>Play</button>
+  </div>
+
+  <div id="audioPlayerContainer">
+    <audio id="audioPlayer" controls></audio>
+  </div>
+</template>
+
+<style>
+  #controls {
+    margin-bottom: 20px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 10px 20px;
+    margin-right: 10px;
+  }
+
+  #audioPlayerContainer {
+    display: none;
+    margin-top: 20px;
+  }
+</style>   
+---
+  
 <section class="hero my-24">
   <div class="container">
     <div class="grid grid-cols-1 items-center gap-24 lg:grid-cols-2">
