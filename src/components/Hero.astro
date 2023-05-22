@@ -1,12 +1,12 @@
 ---
 import { Icon } from 'astro-icon'
 astro: markdown
+import { createEffect, onCleanup } from 'solid-js';
 const { src = '/astronaut-hero-img.webp' } = Astro.props
 ---
 
 ---
 <astro>
-  import { createEffect, onCleanup } from 'solid-js';
 
   let mediaRecorder;
   let recordedChunks = [];
