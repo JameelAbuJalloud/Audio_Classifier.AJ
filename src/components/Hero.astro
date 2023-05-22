@@ -4,10 +4,6 @@ astro: markdown
 import { createEffect, onCleanup } from 'solid-js';
 const { src = '/astronaut-hero-img.webp' } = Astro.props
 ---
-
----
-<astro>
-
   let mediaRecorder;
   let recordedChunks = [];
 
@@ -73,7 +69,6 @@ const { src = '/astronaut-hero-img.webp' } = Astro.props
         console.log('The following error occurred: ' + err);
       });
   });
-</astro>
 
 <template>
   <h1>Audio Recorder</h1>
