@@ -18,3 +18,4 @@ jobs:
           automatic_release_tag: "latest"
           prerelease: true
           title: "Next Release"
+      - run : npm install accessible-astro-components --save-dev
